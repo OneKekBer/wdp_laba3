@@ -16,6 +16,7 @@ typedef struct {
   item *sets;
 } zbior_ary;
 
+
 /* Najlepiej nie modyfikowac nic ponizej. */
 
 // Funkcja daje w wyniku zbior reprezentujacy ciag arytmetyczny o elemencie poczatkowym a, końcowym b i roznicy q>0, tj. {a,a+q,...,b}.

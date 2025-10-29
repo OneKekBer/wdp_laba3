@@ -25,9 +25,8 @@ zbior_ary singleton(int a){
     return z;
 }
 
-void delete(zbior_ary *A){
+void delete(zbior_ary A){
     free(A.sets);
-    free(A);
 }
 
 unsigned moc(zbior_ary A){
@@ -41,7 +40,7 @@ unsigned moc(zbior_ary A){
 
         cnt += (val.b - val.a) / A.Q + 1;
     } 
-    printf("%d", cnt);
+
     return (unsigned)cnt;
 }
 
@@ -56,4 +55,17 @@ bool nalezy(zbior_ary A, int b){
     }
 
     return false;
+}
+
+zbior_ary suma(zbior_ary A, zbior_ary B){
+    zbior_ary new_zbior;
+    // i need to check on equal items
+    new_zbior.n = zbior_ary.A + zbior_ary.B;
+    item *sets = malloc(unsigned(new_zbior.n) * sizeof(item));
+    
+    for(int i = 0; i < new_zbior.n; ++i){
+        
+    }
+
+    reutrn new_zbior;
 }
