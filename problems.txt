@@ -1,0 +1,9 @@
+1) in nalezy i need list of all items(sum of all items)
+where i can use bin search
+//złożoność funkcji nalezy(A, x) powinna być O(log(Aryq(A)))
+
+!!Also this list must be sorted
+
+How to create this list ?? 
+
+2)
