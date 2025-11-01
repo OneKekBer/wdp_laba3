@@ -5,8 +5,9 @@ CFLAGS = -std=c17 -pedantic -Wall -Wextra -Wformat-security -Wduplicated-cond\
          -g -fno-omit-frame-pointer -O1
 
 
-zbior_ary.e: zbior_ary.c
-	gcc $(CFLAGS) zbior_ary.c -o zbior_ary.e 
-
+suma_test: ./tests/suma_test.c zbior_ary.c
+	gcc @opcje ./tests/suma_test.c zbior_ary.c -o suma_test.e
+	./suma_test.e
+	
 clean:
 	rm -f *.e

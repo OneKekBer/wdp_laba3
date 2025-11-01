@@ -69,7 +69,13 @@ int main() {
     D = ciag_arytmetyczny(1, 1, 6);
     E = suma(C, D);
     print_zbior(E);
+    free_zbior(A); free_zbior(B); free_zbior(C); free_zbior(D); free_zbior(E); free_zbior(F);
 
+    printf("Test 7:\n");
+    A = ciag_arytmetyczny(5, 1, 230);
+    B = ciag_arytmetyczny(1, 1, 5);
+    C = suma(A, B);
+    print_zbior(C);
     free_zbior(A); free_zbior(B); free_zbior(C);
 
     return 0;

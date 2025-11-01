@@ -6,15 +6,17 @@
 #define max(a, b) ((a) > (b) ? (a) : (b))
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
+int Q = 0;
+
 zbior_ary ciag_arytmetyczny(int a, int q, int b){
+    if(Q == 0) Q = q;
+
     item *sets = malloc(sizeof(item));
     item i = {a, b};
     zbior_ary z;
     
     sets[0] = i;
-    z.Q = q;
     z.n = 1;
-
     z.sets = sets;
     return z;
 }
@@ -22,11 +24,11 @@ zbior_ary ciag_arytmetyczny(int a, int q, int b){
 zbior_ary singleton(int a){
     item *sets = malloc(sizeof(item));
     item it = {a, 0};
-    sets[0] = it;
     zbior_ary z;
+    
+    sets[0] = it;
     z.sets = sets;
     z.n = 1;
-    z.Q = 0;
     return z;
 }
 
@@ -39,7 +41,7 @@ unsigned moc(zbior_ary A){
             continue;
         }
 
-        cnt += (val.b - val.a) / A.Q + 1;
+        cnt += (val.b - val.a) / Q + 1;
     } 
 
     return (unsigned)cnt;
@@ -83,14 +85,13 @@ zbior_ary suma(zbior_ary A, zbior_ary B){
     int n = A.n + B.n;
     item *cSets = malloc((unsigned)n * sizeof(item));
     int insertIndex = 0, idxA = 0, idxB = 0;
-
     //W: dont forget bout singletons!!
     //idea: i have two pointers that check every item if they have common part
     while(idxA < A.n && idxB < B.n ){ 
         item itemA = A.sets[idxA];
         item itemB = B.sets[idxB];
         
-        if(isItemsIntersects(itemA, itemB) && isItemsCommon(itemA, itemB, max(A.Q, B.Q))){
+        if(isItemsIntersects(itemA, itemB) && isItemsCommon(itemA, itemB, Q)){
             item newItem = getItemsSum(itemA, itemB);        
             cSets[insertIndex] = newItem;
             idxA++;
@@ -111,11 +112,6 @@ zbior_ary suma(zbior_ary A, zbior_ary B){
             idxA++;
             continue;    
         }
-
-        cSets[insertIndex] = itemA;
-        cSets[++insertIndex] = itemB;
-        idxA++;
-        idxB++;
     }
 
     printf("idxA: %d, A.n: %d\n", idxA, A.n);

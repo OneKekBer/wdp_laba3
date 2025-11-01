@@ -11,7 +11,6 @@ typedef struct {
 
 //what fields do i need to have 
 typedef struct {
-  int Q;
   int n;
   item *sets;
 } zbior_ary;

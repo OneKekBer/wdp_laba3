@@ -23,6 +23,7 @@ int main(void)
    assert(itemsEqual(getItemsSum((item){2, 7}, (item){5, 9}), (item){2, 9}) && "getItemsSum overlap");
    assert(itemsEqual(getItemsSum((item){2, 0}, (item){1, 3}), (item){1, 3}) && "getItemsSum overlap");
    assert(itemsEqual(getItemsSum((item){1, 1}, (item){1, 1}), (item){1, 1}) && "getItemsSum same");
+   assert(itemsEqual(getItemsSum((item){1, 6}, (item){6, 0}), (item){1, 6}) && "getItemsSum same");
    assert(!itemsEqual(getItemsSum((item){3, 0}, (item){5, 0}), (item){3, 5}) && "getItemsSum singletons");
    assert(!itemsEqual(getItemsSum((item){1, 4}, (item){2, 6}), (item){1, 5}) && "getItemsSum negative check");
    printf("✔ getItemsSum passed all tests.\n\n");
