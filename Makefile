@@ -9,6 +9,10 @@ suma: ./tests/suma_test.c zbior_ary.c
 	gcc ./tests/suma_test.c zbior_ary.c -o suma_test.e
 	./suma_test.e
 
+nalezy: ./tests/nalezy_test.c zbior_ary.c
+	gcc ./tests/nalezy_test.c zbior_ary.c -o nalezy_test.e
+	./nalezy_test.e
+
 ilo: ./tests/iloczyn_test.c zbior_ary.c
 	gcc ./tests/iloczyn_test.c zbior_ary.c -o iloczyn_test.e
 	./iloczyn_test.e

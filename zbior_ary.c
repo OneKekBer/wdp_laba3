@@ -59,14 +59,7 @@ void print_item1(item i) {
     printf("\n");
 
 }
-// bool nalezy(zbior_ary A, int b){
-    
-//     for(int i = 0; i < A.n; ++i){
 
-//     }
-
-//     return false;
-// }
 
 //if they has common q, [1,3] == [5,7] is common, [2,4] != [1,3] not common
 bool isItemsCommon(item item1, item item2, int q){
@@ -215,6 +208,7 @@ zbior_ary iloczyn(zbior_ary A, zbior_ary B){
 
         if(isItemsCommon(itemA, itemB, Q) && isItemsIntersects(itemA, itemB)){
             newSets[insertIdx] = getItemsIntersection(itemA, itemB);
+            insertIdx++;
         }
         
         if(itemA.a < itemB.a) idxA++;
@@ -226,4 +220,35 @@ zbior_ary iloczyn(zbior_ary A, zbior_ary B){
     newZbior.sets = newSets;
     return newZbior;
 
+}
+
+//find info bout b > 0 ? or not
+bool nalezy(zbior_ary A, int b){
+    int l = 0, r = A.n - 1;   
+    
+    while (l <= r)
+    {
+        int mid = l + (r - l) / 2;
+        item midItem = A.sets[mid];
+        
+        if(midItem.a == b || midItem.b == b) return true;
+        if(b >= midItem.a && b <= midItem.b && isItemsCommon(midItem, (item){b, 0}, Q)) return true;
+
+        if(midItem.b == 0){
+            if(midItem.a > b){
+                r = mid;
+            }else{
+                l = mid + 1;
+            }
+            continue;
+        }
+
+        if(midItem.b < b){
+            l = mid + 1;
+        }else{
+            r = mid;
+        } 
+    }
+
+    return false;
 }
