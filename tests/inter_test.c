@@ -33,6 +33,7 @@ int main(void)
    assert(isItemsIntersects((item){1, 5}, (item){4, 10}) == true && "intersects overlap");
    assert(isItemsIntersects((item){1, 5}, (item){6, 9}) == false && "intersects disjoint");
    assert(isItemsIntersects((item){1, 5}, (item){5, 0}) == true && "intersects edge");
+   assert(isItemsIntersects((item){1, 3}, (item){1, 6}) == true && "intersects edge");
    assert(isItemsIntersects((item){5, 0}, (item){1, 5}) == true && "intersects singleton-in-segment");
    assert(isItemsIntersects((item){5, 0}, (item){6, 0}) == false && "intersects two singletons no overlap");
    assert(isItemsIntersects((item){5, 0}, (item){5, 0}) == true && "intersects same singleton");

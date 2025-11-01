@@ -51,6 +51,13 @@ unsigned ary(zbior_ary A){
     return (unsigned)A.n;
 }
 
+void print_item1(item i) {
+    printf("item");
+    if (i.b == 0) printf("{%d}", i.a);
+    else printf("[%d,%d]", i.a, i.b);
+    printf("\n");
+
+}
 // bool nalezy(zbior_ary A, int b){
     
 //     for(int i = 0; i < A.n; ++i){
@@ -62,6 +69,7 @@ unsigned ary(zbior_ary A){
 
 //if they has common q, [1,3] == [5,7] is common, [2,4] != [1,3] not common
 bool isItemsCommon(item item1, item item2, int q){
+    if(q == 1) return true;
     return (abs(item1.a - item2.a) % q == 0) && (abs(item1.b - item2.b) % q == 0);
 }
 
@@ -71,7 +79,10 @@ bool isItemsIntersects(item item1, item item2) {
         return item2.a >= item1.a && item2.a <= item1.b;
     }if(item1.b == 0){
         return item1.a >= item2.a && item1.a <= item2.b;
-    }else return (item1.a <= item2.b) && (item2.a <= item1.b);
+    }else{
+        // printf("norm\n");
+        return (item1.a <= item2.b) && (item2.a <= item1.b);
+    } 
 }
 
 item getItemsSum(item item1, item item2){
@@ -81,61 +92,108 @@ item getItemsSum(item item1, item item2){
     return newItem;
 }
 
+//assume that all sets are sorted
 zbior_ary suma(zbior_ary A, zbior_ary B){
     int n = A.n + B.n;
     item *cSets = malloc((unsigned)n * sizeof(item));
     int insertIndex = 0, idxA = 0, idxB = 0;
-    //W: dont forget bout singletons!!
-    //idea: i have two pointers that check every item if they have common part
-    while(idxA < A.n && idxB < B.n ){ 
-        item itemA = A.sets[idxA];
-        item itemB = B.sets[idxB];
+
+    while(idxA < A.n || idxB < B.n){
+        item itemA = (idxA < A.n) ? A.sets[idxA] : (item){INT_MAX, INT_MAX};
+        item itemB = (idxB < B.n) ? B.sets[idxB] : (item){INT_MAX, INT_MAX};
+
+        if (itemA.a == INT_MAX && itemB.a == INT_MAX) break;
         
-        if(isItemsIntersects(itemA, itemB) && isItemsCommon(itemA, itemB, Q)){
-            item newItem = getItemsSum(itemA, itemB);        
-            cSets[insertIndex] = newItem;
+        if(insertIndex > 0){
+            item prevItem = insertIndex > 0 ? cSets[insertIndex - 1] : (item){0, 0};
+            bool merged = false;
+
+            if(isItemsCommon(prevItem, itemA, Q) && isItemsIntersects(prevItem, itemA)){
+                cSets[insertIndex - 1] = getItemsSum(prevItem, itemA);
+                idxA++;
+                merged = true;
+            }
+
+            if(isItemsCommon(prevItem, itemB, Q) && isItemsIntersects(prevItem, itemB)){
+                cSets[insertIndex - 1] = getItemsSum(prevItem, itemB);
+                idxB++;
+                merged = true;
+            }            
+
+            if(merged) continue;
+        }   
+        // print_item1(itemA);
+        // print_item1(itemB);
+        // printf("%d", Q);
+        if(isItemsCommon(itemA, itemB, Q) && isItemsIntersects(itemA, itemB)){
+            // printf("common rabotaet");
+            cSets[insertIndex] = getItemsSum(itemA, itemB); 
+            insertIndex++;
             idxA++;
             idxB++;
-            insertIndex++;
             continue;
         }
 
-        if(itemA.a > itemB.a){ // W: code repeating make smth with that!!
-            cSets[insertIndex] = itemB;
-            insertIndex++;
-            idxB++;
-            continue;
-        }
         if(itemA.a < itemB.a){
             cSets[insertIndex] = itemA;
-            insertIndex++;
             idxA++;
-            continue;    
+            insertIndex++;
         }
+        else{
+            cSets[insertIndex] = itemB;
+            idxB++;
+            insertIndex++;
+        } 
     }
 
-    printf("idxA: %d, A.n: %d\n", idxA, A.n);
+    //now fill cSets with items which wasnt added
     if(idxA < A.n){
         for(int i = idxA; i < A.n; ++i){
-            cSets[insertIndex] = A.sets[i];
+            item itemA = A.sets[i];
+
+            if(insertIndex > 0){
+                item prevItem = cSets[insertIndex - 1];
+
+                if(isItemsCommon(itemA, prevItem, Q) && isItemsIntersects(itemA, prevItem)){
+                    cSets[insertIndex - 1] = getItemsSum(itemA, prevItem);        
+                    continue;
+                }
+            }   
+
+            cSets[insertIndex] = itemA;
             insertIndex++;
         }
     }
-    printf("idxB: %d, B.n: %d\n", idxB, B.n);
+    
     if(idxB < B.n){
         for(int i = idxB; i < B.n; ++i){
-            printf("a:%d b:%d ", B.sets[i].a, B.sets[i].b);
-            cSets[insertIndex] = B.sets[i];
+            item itemB = B.sets[i];
+
+            if(insertIndex > 0){
+                item prevItem = cSets[insertIndex - 1];
+
+                if(isItemsCommon(itemB, prevItem, Q) && isItemsIntersects(itemB, prevItem)){
+                    cSets[insertIndex - 1] = getItemsSum(itemB, prevItem);        
+                    continue;
+                }
+            }   
+
+            cSets[insertIndex] = itemB;
             insertIndex++;
         }
     }
-
-    // if(insertIndex < n){
-    //     cSets = realloc(cSets, (unsigned)insertIndex * sizeof(item));
-    // }
-
+   
+    if(insertIndex < n){
+        item *reSets = realloc(cSets, (unsigned)insertIndex * sizeof(item));
+        if(reSets != NULL) cSets = reSets;
+    }
+   
     zbior_ary C;
     C.n = insertIndex;
     C.sets = cSets;
     return C;
+}
+
+zbior_ary iloczyn(zbior_ary A, zbior_ary B){
+    
 }

@@ -26,10 +26,10 @@ void free_zbior(zbior_ary z) {
 
 int main() {
     zbior_ary A, B, C, D, E, F;
-
+    
     printf("Test 1:\n");
-    A = ciag_arytmetyczny(1, 2, 6);
-    B = ciag_arytmetyczny(3, 2, 16);
+    A = ciag_arytmetyczny(1, 1, 6);
+    B = ciag_arytmetyczny(3, 1, 16);
     C = suma(A, B);
     print_zbior(C);
     free_zbior(A); free_zbior(B); free_zbior(C);
@@ -66,14 +66,15 @@ int main() {
     A = ciag_arytmetyczny(1, 1, 3);
     B = singleton(5);
     C = suma(A, B);
+    print_zbior(C);
     D = ciag_arytmetyczny(1, 1, 6);
     E = suma(C, D);
     print_zbior(E);
-    free_zbior(A); free_zbior(B); free_zbior(C); free_zbior(D); free_zbior(E); free_zbior(F);
+    free_zbior(A); free_zbior(B); free_zbior(C); free_zbior(D); free_zbior(E);
 
     printf("Test 7:\n");
-    A = ciag_arytmetyczny(5, 1, 230);
-    B = ciag_arytmetyczny(1, 1, 5);
+    A = ciag_arytmetyczny(5, 5, 25);
+    B = ciag_arytmetyczny(1, 5, 5);
     C = suma(A, B);
     print_zbior(C);
     free_zbior(A); free_zbior(B); free_zbior(C);
