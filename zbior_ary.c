@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "zbior_ary.h"
 #include <math.h>
+#include <assert.h>
 
 #define max(a, b) ((a) > (b) ? (a) : (b))
 #define min(a, b) ((a) < (b) ? (a) : (b))
@@ -85,10 +86,19 @@ bool isItemsIntersects(item item1, item item2) {
     } 
 }
 
+item getItemsIntersection(item item1, item item2){
+    item newItem;
+    newItem.a = max(item1.a, item2.a);
+    newItem.b = min(item1.b, item2.b);
+    
+    return newItem;
+}
+
 item getItemsSum(item item1, item item2){
     item newItem;
     newItem.a = min(item1.a, item2.a);
     newItem.b = max(item1.b, item2.b);
+
     return newItem;
 }
 
@@ -96,26 +106,25 @@ item getItemsSum(item item1, item item2){
 zbior_ary suma(zbior_ary A, zbior_ary B){
     int n = A.n + B.n;
     item *cSets = malloc((unsigned)n * sizeof(item));
-    int insertIndex = 0, idxA = 0, idxB = 0;
+    int insertIdx = 0, idxA = 0, idxB = 0;
 
     while(idxA < A.n || idxB < B.n){
-        item itemA = (idxA < A.n) ? A.sets[idxA] : (item){INT_MAX, INT_MAX};
-        item itemB = (idxB < B.n) ? B.sets[idxB] : (item){INT_MAX, INT_MAX};
-
-        if (itemA.a == INT_MAX && itemB.a == INT_MAX) break;
+        if(idxA >= A.n || idxB >= B.n) break;
+        item itemA = A.sets[idxA]; // W: can be dangerous
+        item itemB = B.sets[idxB];
         
-        if(insertIndex > 0){
-            item prevItem = insertIndex > 0 ? cSets[insertIndex - 1] : (item){0, 0};
+        if(insertIdx > 0){
+            item prevItem = insertIdx > 0 ? cSets[insertIdx - 1] : (item){0, 0};
             bool merged = false;
 
             if(isItemsCommon(prevItem, itemA, Q) && isItemsIntersects(prevItem, itemA)){
-                cSets[insertIndex - 1] = getItemsSum(prevItem, itemA);
+                cSets[insertIdx - 1] = getItemsSum(prevItem, itemA);
                 idxA++;
                 merged = true;
             }
 
             if(isItemsCommon(prevItem, itemB, Q) && isItemsIntersects(prevItem, itemB)){
-                cSets[insertIndex - 1] = getItemsSum(prevItem, itemB);
+                cSets[insertIdx - 1] = getItemsSum(prevItem, itemB);
                 idxB++;
                 merged = true;
             }            
@@ -127,22 +136,22 @@ zbior_ary suma(zbior_ary A, zbior_ary B){
         // printf("%d", Q);
         if(isItemsCommon(itemA, itemB, Q) && isItemsIntersects(itemA, itemB)){
             // printf("common rabotaet");
-            cSets[insertIndex] = getItemsSum(itemA, itemB); 
-            insertIndex++;
+            cSets[insertIdx] = getItemsSum(itemA, itemB); 
+            insertIdx++;
             idxA++;
             idxB++;
             continue;
         }
 
         if(itemA.a < itemB.a){
-            cSets[insertIndex] = itemA;
+            cSets[insertIdx] = itemA;
             idxA++;
-            insertIndex++;
+            insertIdx++;
         }
         else{
-            cSets[insertIndex] = itemB;
+            cSets[insertIdx] = itemB;
             idxB++;
-            insertIndex++;
+            insertIdx++;
         } 
     }
 
@@ -151,17 +160,17 @@ zbior_ary suma(zbior_ary A, zbior_ary B){
         for(int i = idxA; i < A.n; ++i){
             item itemA = A.sets[i];
 
-            if(insertIndex > 0){
-                item prevItem = cSets[insertIndex - 1];
+            if(insertIdx > 0){
+                item prevItem = cSets[insertIdx - 1];
 
                 if(isItemsCommon(itemA, prevItem, Q) && isItemsIntersects(itemA, prevItem)){
-                    cSets[insertIndex - 1] = getItemsSum(itemA, prevItem);        
+                    cSets[insertIdx - 1] = getItemsSum(itemA, prevItem);        
                     continue;
                 }
             }   
 
-            cSets[insertIndex] = itemA;
-            insertIndex++;
+            cSets[insertIdx] = itemA;
+            insertIdx++;
         }
     }
     
@@ -169,31 +178,52 @@ zbior_ary suma(zbior_ary A, zbior_ary B){
         for(int i = idxB; i < B.n; ++i){
             item itemB = B.sets[i];
 
-            if(insertIndex > 0){
-                item prevItem = cSets[insertIndex - 1];
+            if(insertIdx > 0){
+                item prevItem = cSets[insertIdx - 1];
 
                 if(isItemsCommon(itemB, prevItem, Q) && isItemsIntersects(itemB, prevItem)){
-                    cSets[insertIndex - 1] = getItemsSum(itemB, prevItem);        
+                    cSets[insertIdx - 1] = getItemsSum(itemB, prevItem);        
                     continue;
                 }
             }   
 
-            cSets[insertIndex] = itemB;
-            insertIndex++;
+            cSets[insertIdx] = itemB;
+            insertIdx++;
         }
     }
    
-    if(insertIndex < n){
-        item *reSets = realloc(cSets, (unsigned)insertIndex * sizeof(item));
+    if(insertIdx < n){
+        item *reSets = realloc(cSets, (unsigned)insertIdx * sizeof(item));
         if(reSets != NULL) cSets = reSets;
     }
    
-    zbior_ary C;
-    C.n = insertIndex;
-    C.sets = cSets;
-    return C;
+    zbior_ary newZbior;
+    newZbior.n = insertIdx;
+    newZbior.sets = cSets;
+    return newZbior;
 }
 
 zbior_ary iloczyn(zbior_ary A, zbior_ary B){
-    
+    int n = max(A.n, B.n);
+    item *newSets = malloc((unsigned)n * sizeof(item));
+    int insertIdx = 0, idxA = 0, idxB = 0;
+
+    while(idxA < A.n || idxB < B.n){
+        if(idxA >= A.n || idxB >= B.n) break;
+        item itemA = A.sets[idxA]; // W: can be dangerous
+        item itemB = B.sets[idxB];
+
+        if(isItemsCommon(itemA, itemB, Q) && isItemsIntersects(itemA, itemB)){
+            newSets[insertIdx] = getItemsIntersection(itemA, itemB);
+        }
+        
+        if(itemA.a < itemB.a) idxA++;
+        else idxB++;    
+    }
+
+    zbior_ary newZbior;
+    newZbior.n = insertIdx;
+    newZbior.sets = newSets;
+    return newZbior;
+
 }

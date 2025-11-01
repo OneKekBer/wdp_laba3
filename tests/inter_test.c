@@ -50,6 +50,13 @@ int main(void)
    assert(isItemsCommon((item){1, 1}, (item){7, 7}, 5) == false && "common singletons q=5 no");
    printf("✔ isItemsCommon passed all tests.\n\n");
 
+   // --- isItemsCommon ---
+   printf("[TEST] getItemsIntersection\n");
+   assert(itemsEqual(getItemsIntersection((item){3, 6}, (item){2, 4}), (item){3, 4}) && "getItemsSum merge");
+   assert(itemsEqual(getItemsIntersection((item){5, 0}, (item){5, 0}), (item){5, 0}) && "getItemsSum merge");
+   assert(itemsEqual(getItemsIntersection((item){1, 6}, (item){5, 0}), (item){5, 0}) && "getItemsSum merge");
+   printf("✔ getItemsIntersection passed all tests.\n\n");
+
    printf("=== All tests passed successfully! ===\n");
    return 0;
 }

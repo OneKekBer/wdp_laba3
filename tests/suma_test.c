@@ -73,11 +73,36 @@ int main() {
     free_zbior(A); free_zbior(B); free_zbior(C); free_zbior(D); free_zbior(E);
 
     printf("Test 7:\n");
-    A = ciag_arytmetyczny(5, 5, 25);
-    B = ciag_arytmetyczny(1, 5, 5);
+    A = ciag_arytmetyczny(5, 1, 25);
+    B = ciag_arytmetyczny(1, 1, 5);
     C = suma(A, B);
     print_zbior(C);
     free_zbior(A); free_zbior(B); free_zbior(C);
 
+    printf("Test 8:\n");
+    A = singleton(5);
+    B = singleton(5);
+    C = suma(A, B);
+    print_zbior(C);
+    free_zbior(A); free_zbior(B); free_zbior(C);
+
+    printf("Test 9:\n");
+    A = singleton(5);
+    B = singleton(6);
+    C = suma(A, B);
+    print_zbior(C);
+    free_zbior(A); free_zbior(B); free_zbior(C);
+
+    printf("Test 10:\n");
+    A = singleton(5);
+    B = singleton(6);
+    C = suma(A, B);
+    //print_zbior(C);
+    D = ciag_arytmetyczny(200, 1, 300);
+    E = ciag_arytmetyczny(1, 1, 3);
+    F = suma(suma(D, E), C);
+    
+    print_zbior(F);
+        free_zbior(A); free_zbior(B); free_zbior(C); free_zbior(D); free_zbior(E); free_zbior(F);
     return 0;
 }

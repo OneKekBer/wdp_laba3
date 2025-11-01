@@ -17,7 +17,7 @@ typedef struct {
 bool isItemsCommon(item item1, item item2, int q);
 bool isItemsIntersects(item item1, item item2);
 item getItemsSum(item item1, item item2);
-
+item getItemsIntersection(item item1, item item2);
 /* Najlepiej nie modyfikowac nic ponizej. */
 
 // Funkcja daje w wyniku zbior reprezentujacy ciag arytmetyczny o elemencie poczatkowym a, końcowym b i roznicy q>0, tj. {a,a+q,...,b}.
