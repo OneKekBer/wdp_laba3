@@ -5,9 +5,10 @@ CFLAGS = -std=c17 -pedantic -Wall -Wextra -Wformat-security -Wduplicated-cond\
          -g -fno-omit-frame-pointer -O1
 
 
-suma: ./tests/suma_test.c zbior_ary.c
-	gcc ./tests/suma_test.c zbior_ary.c -o suma_test.e
+suma: ./tests/suma_test.c zbior_ary.c ./../tests/print.cpp
+	g++ ./tests/suma_test.c zbior_ary.c ./../tests/print.cpp -o suma_test.e
 	./suma_test.e
+
 
 nalezy: ./tests/nalezy_test.c zbior_ary.c
 	gcc ./tests/nalezy_test.c zbior_ary.c -o nalezy_test.e

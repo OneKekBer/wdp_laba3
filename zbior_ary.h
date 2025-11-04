@@ -13,7 +13,9 @@ typedef struct {
 typedef struct {
   int n;
   item *sets;
+  int q;
 } zbior_ary;
+
 bool isItemsCommon(item item1, item item2, int q);
 bool isItemsIntersects(item item1, item item2);
 item getItemsSum(item item1, item item2);
