@@ -32,7 +32,7 @@ zbior_ary singleton(int a){
     sets[0] = it;
     z.sets = sets;
     z.n = 1;
-    z.q = 0;
+    z.q = Q;
     return z;
 }
 
@@ -53,8 +53,7 @@ unsigned ary(zbior_ary A){
 
 void print_item1(item i) {
     printf("item");
-    if (i.b == 0) printf("{%d}", i.a);
-    else printf("[%d,%d]", i.a, i.b);
+    printf("[%d,%d]", i.a, i.b);
     printf("\n");
 }
 
@@ -68,16 +67,28 @@ bool isItemValid(item item){
     return item.a <= item.b;
 }
 
+bool isItemsIntersectsWithQ(item item1, item item2) {
+    long long expanded_a = (long long)item2.a - Q;
+    long long expanded_b = (long long)item2.b + Q;
+    
+    long long max_start = max((long long)item1.a, expanded_a);
+    long long min_end = min((long long)item1.b, expanded_b);
+
+    return max_start <= min_end;
+}
+
+item getItemsIntersectionWithQ(item item1, item item2){
+    long long expanded_a = (long long)item2.a - Q;
+    long long expanded_b = (long long)item2.b + Q;
+
+    item newItem;
+    newItem.a = (int)max((long long)item1.a, expanded_a);
+    newItem.b = (int)min((long long)item1.b, expanded_b);
+    return newItem;
+}
+
 bool isItemsIntersects(item item1, item item2) {
-    if(item2.b == 0 && item1.b == 0) return item1.a == item2.a;
-    if(item2.b == 0){
-        return item2.a >= item1.a && item2.a <= item1.b;
-    }else if(item1.b == 0){
-        return item1.a >= item2.a && item1.a <= item2.b;
-    }else{
-        // printf("norm\n");
-        return (item1.a <= item2.b) && (item2.a <= item1.b);
-    } 
+    return (max(item1.a, item2.a) <= min(item1.b, item2.b));
 }
 
 item getItemsIntersection(item item1, item item2){
@@ -108,13 +119,13 @@ zbior_ary suma(zbior_ary A, zbior_ary B){
             item prevItem = insertIdx > 0 ? newSets[insertIdx - 1] : (item){0, 0};
             bool merged = false;
 
-            if(isItemsCommon(prevItem, itemA, Q) && isItemsIntersects(prevItem, itemA)){
+            if(isItemsCommon(prevItem, itemA, Q) && isItemsIntersectsWithQ(prevItem, itemA)){
                 newSets[insertIdx - 1] = getItemsSum(prevItem, itemA);
                 idxA++;
                 merged = true;
             }
 
-            if(isItemsCommon(prevItem, itemB, Q) && isItemsIntersects(prevItem, itemB)){
+            if(isItemsCommon(prevItem, itemB, Q) && isItemsIntersectsWithQ(prevItem, itemB)){
                 newSets[insertIdx - 1] = getItemsSum(prevItem, itemB);
                 idxB++;
                 merged = true;
@@ -125,7 +136,7 @@ zbior_ary suma(zbior_ary A, zbior_ary B){
         // print_item1(itemA);
         // print_item1(itemB);
         // printf("%d", Q);
-        if(isItemsCommon(itemA, itemB, Q) && isItemsIntersects(itemA, itemB)){
+        if(isItemsCommon(itemA, itemB, Q) && isItemsIntersectsWithQ(itemA, itemB)){
             // printf("common rabotaet");
             newSets[insertIdx] = getItemsSum(itemA, itemB); 
             insertIdx++;
@@ -154,7 +165,7 @@ zbior_ary suma(zbior_ary A, zbior_ary B){
             if(insertIdx > 0){
                 item prevItem = newSets[insertIdx - 1];
 
-                if(isItemsCommon(itemA, prevItem, Q) && isItemsIntersects(itemA, prevItem)){
+                if(isItemsCommon(itemA, prevItem, Q) && isItemsIntersectsWithQ(itemA, prevItem)){
                     newSets[insertIdx - 1] = getItemsSum(itemA, prevItem);        
                     continue;
                 }
@@ -172,7 +183,7 @@ zbior_ary suma(zbior_ary A, zbior_ary B){
             if(insertIdx > 0){
                 item prevItem = newSets[insertIdx - 1];
 
-                if(isItemsCommon(itemB, prevItem, Q) && isItemsIntersects(itemB, prevItem)){
+                if(isItemsCommon(itemB, prevItem, Q) && isItemsIntersectsWithQ(itemB, prevItem)){
                     newSets[insertIdx - 1] = getItemsSum(itemB, prevItem);        
                     continue;
                 }
@@ -228,23 +239,56 @@ zbior_ary roznica(zbior_ary A, zbior_ary B){
     while(idxA < A.n &&  idxB < B.n){
         item itemB = B.sets[idxB];
     
-        if(isItemsCommon(currentA, itemB, Q) && isItemsIntersects(currentA, itemB)){
-            if(currentA.a < itemB.a){ //when a = [2,8] b = [6,8] leftDiff = [2,4] for q = 2 
-                item leftDiff;
-                leftDiff.a = currentA.a;
-                leftDiff.b = itemB.a - Q;
-                newSets[insertIdx] = leftDiff;
-                insertIdx++;
-            }
-        
-            if(currentA.b > itemB.b){ //when a = [2,8] b = [2,4] rightDiff = [6,8] for q = 2
-                currentA.a = itemB.b + Q;
-                idxB++;
+        if(isItemsIntersects(currentA, itemB)){
+            if(isItemsCommon(currentA, itemB, Q)){
+                if(currentA.a < itemB.a){ //when a = [2,8] b = [6,8] leftDiff = [2,4] for q = 2 
+                    item leftDiff;
+                    leftDiff.a = currentA.a;
+                    leftDiff.b = itemB.a - Q;
+                    newSets[insertIdx] = leftDiff;
+                    insertIdx++;
+                }
+            
+                if(currentA.b > itemB.b){ //when a = [2,8] b = [2,4] rightDiff = [6,8] for q = 2
+                    currentA.a = itemB.b + Q;
+                    idxB++;
+                }else{
+                    idxA++;
+                    if(idxA < A.n) currentA = A.sets[idxA];  
+                }
             }else{
-                idxA++;
-                if(idxA < A.n) currentA = A.sets[idxA];  
+                
+                if(idxA + 1 < A.n){
+                    if(isItemsIntersects(A.sets[idxA + 1], itemB)){
+                        newSets[insertIdx] = currentA;
+                        idxA++;
+                        insertIdx++;
+                        currentA = A.sets[idxA];
+                        continue;
+                    }
+                }
+
+                if(idxB + 1 < B.n){
+                    if(isItemsIntersects(B.sets[idxA + 1], currentA)){
+                        idxB++;
+                        continue;
+                    }
+                }
+
+                if (currentA.a < itemB.a) {
+                    newSets[insertIdx] = currentA;
+                    insertIdx++;
+                    idxA++;
+                    if(idxA < A.n) currentA = A.sets[idxA];
+                } else if (itemB.a < currentA.a) {
+                    idxB++;
+                } else {
+                    // Начинаются в одной точке, но не common
+                    idxA++;
+                    idxB++;
+                }
             }
-        }else if(currentA.b < itemB.a - Q){
+        }else if(currentA.b < itemB.a){
             newSets[insertIdx] = currentA;
             insertIdx++;
             idxA++;
@@ -283,17 +327,61 @@ zbior_ary iloczyn(zbior_ary A, zbior_ary B){
     int insertIdx = 0, idxA = 0, idxB = 0;
 
     while(idxA < A.n && idxB < B.n){
-        item itemA = A.sets[idxA]; // W: can be dangerous
-        item itemB = B.sets[idxB];
-        
-        if(isItemsCommon(itemA, itemB, Q) && isItemsIntersects(itemA, itemB)){
-            newSets[insertIdx] = getItemsIntersection(itemA, itemB);
-            insertIdx++;
+    item itemA = A.sets[idxA];
+    item itemB = B.sets[idxB];
+
+    if(isItemsIntersects(itemA, itemB)){
+        if(isItemsCommon(itemA, itemB, Q)) {
+            //printf("yes");
+            item intersection = getItemsIntersection(itemA, itemB);
+            if (isItemValid(intersection)) {
+                newSets[insertIdx] = intersection;
+                insertIdx++;
+            }
+            
+            if (itemA.b < itemB.b) {
+                idxA++;
+            } else if (itemB.b < itemA.b) {
+                idxB++;
+            } else {
+                idxA++;
+                idxB++;
+            }
+        } 
+        else {
+            if(idxA + 1 < A.n){
+                if(isItemsIntersects(A.sets[idxA + 1], itemB)){
+                    idxA++;
+                    continue;
+                }
+            }
+
+            if(idxB + 1 < B.n){
+                if(isItemsIntersects(B.sets[idxA + 1], itemA)){
+                    idxB++;
+                    continue;
+                }
+            }
+
+            if (itemA.a < itemB.a) {
+                idxA++;
+            } else if (itemB.a < itemA.a) {
+                idxB++;
+            } else {
+                idxA++;
+                idxB++;
+            }
         }
-        // i need to check when fr exmpl idxA > A.n or idxB > B.n 
-        if(itemA.a < itemB.a) idxA++;
-        else idxB++;    
+    } 
+    // 3. Нет геометрического пересечения: A левее B
+    else if(itemA.b < itemB.a){
+        idxA++;
+    } 
+    // 4. Нет геометрического пересечения: B левее A
+    else { // (itemB.b < itemA.a)
+        idxB++;
     }
+}
 
     if(insertIdx < n){
         item *reSets = (item *)realloc(newSets, (unsigned)insertIdx * sizeof(item));
