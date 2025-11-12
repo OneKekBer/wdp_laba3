@@ -329,7 +329,7 @@ zbior_ary roznica(zbior_ary A, zbior_ary B){
 
     if (insertIdx < n)
     {
-        item *reSets = (item *)realloc(newSets, insertIdx * sizeof(item));
+        item *reSets = (item *)realloc(newSets, (unsigned)insertIdx * sizeof(item));
         if (reSets != NULL)
             newSets = reSets;
     }
