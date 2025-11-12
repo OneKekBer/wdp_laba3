@@ -52,6 +52,7 @@ bool isItemsCommon(item item1, item item2, long long q)
     return (llabs(item1.a - item2.a) % q == 0) && (llabs(item1.b - item2.b) % q == 0);
 }
 
+
 bool isItemValid(item item)
 {
     return item.a <= item.b;
