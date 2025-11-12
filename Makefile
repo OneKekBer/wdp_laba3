@@ -9,6 +9,9 @@ suma: ./tests/suma_test.c zbior_ary.c ./../tests/print.cpp
 	g++ ./tests/suma_test.c zbior_ary.c ./../tests/print.cpp -o suma_test.e
 	./suma_test.e
 
+ocen: zbior_ary.c ocen.c 
+	g++ ocen.c zbior_ary.c -o ocen.e
+	./ocen.e
 
 nalezy: ./tests/nalezy_test.c zbior_ary.c
 	gcc ./tests/nalezy_test.c zbior_ary.c -o nalezy_test.e

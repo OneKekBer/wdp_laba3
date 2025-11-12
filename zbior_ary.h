@@ -5,30 +5,26 @@
 #include <stdbool.h>
 
 typedef struct {
-  int a;
-  int b;
+  long long a;
+  long long b;
 } item;
 
 //what fields do i need to have 
 typedef struct {
-  int n;
+  long long n;
   item *sets;
-  int q;
+  long long q;
 } zbior_ary;
 
-bool isItemsCommon(item item1, item item2, int q);
-bool isItemsIntersects(item item1, item item2);
-item getItemsSum(item item1, item item2);
-item getItemsIntersection(item item1, item item2);
 /* Najlepiej nie modyfikowac nic ponizej. */
 
 // Funkcja daje w wyniku zbior reprezentujacy ciag arytmetyczny o elemencie poczatkowym a, końcowym b i roznicy q>0, tj. {a,a+q,...,b}.
 // Mozesz zalozyc, ze we wszystkich zapytaniach w danym tescie wartosc q bedzie taka sama.
 // Mozesz zalozyc, ze ta funkcja zostanie wywolana jako pierwsza.
-zbior_ary ciag_arytmetyczny(int a, int q, int b);
+zbior_ary ciag_arytmetyczny(long long a, long long q, long long b);
 
 // Daje w wyniku zbior zlozony z samego elementu a, tj. {a}.
-zbior_ary singleton(int a);
+zbior_ary singleton(long long a);
 
 // Daje w wyniku zbior reprezentujacy teoriomnogosciowa sume zbiorow A i B.
 zbior_ary suma(zbior_ary A, zbior_ary B);
@@ -40,7 +36,7 @@ zbior_ary iloczyn(zbior_ary A, zbior_ary B);
 zbior_ary roznica(zbior_ary A, zbior_ary B);
 
 // Daje w wyniku true wtw. gdy liczba b nalezy do zbioru A.
-bool nalezy(zbior_ary A, int b);
+bool nalezy(zbior_ary A, long long b);
 
 // Wynikiem funkcji jest liczba elementow w zbiorze A.
 unsigned moc(zbior_ary A);

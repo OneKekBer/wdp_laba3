@@ -374,8 +374,107 @@ void f6(){ //38577
     free_zbior(z7);
 }
 
+void roznica_test(){
+    // --- 0. Настройка ---
+    // z_A = {[0, 100]}, q=2. 
+    // ЭТО УСТАНАВЛИВАЕТ ГЛОБАЛЬНЫЙ Q = 2
+    zbior_ary z_A = ciag_arytmetyczny(0, 2, 100);
+    printf("z_A (A): ");
+    print_zbior(z_A); // Ожидаемый вывод: 0 2 4 ... 100
+
+    // z_B_part1 = {[10, 20]}, q=2
+    zbior_ary z_B_part1 = ciag_arytmetyczny(10, 2, 20);
+    // z_B_part2 = {[30, 40]}, q=2
+    zbior_ary z_B_part2 = ciag_arytmetyczny(30, 2, 40);
+    // z_B = {[10, 20], [30, 40]} (q=2)
+    zbior_ary z_B = suma(z_B_part1, z_B_part2);
+    printf("z_B (B): ");
+    print_zbior(z_B); // Ожидаемый вывод: 10 12 ... 20 30 32 ... 40
+
+
+    // === ТЕСТ 1: "КЛАССИЧЕСКОЕ КРОМСАНИЕ" (Один A, много B) ===
+    // A - B, где A = [0, 100], B = {[10, 20], [30, 40]}. Q=2.
+    // Должен "вырезать" [8, 22] и [28, 42].
+    // Результат: {[0, 6], [24, 26], [44, 100]} (q=2)
+    zbior_ary z_R1 = roznica(z_A, z_B);
+    printf("Test 1 (A - B): ");
+    print_zbior(z_R1); // Ожидаемый вывод: 0 2 4 6 24 26 44 46 ... 100
+
+
+    // === ТЕСТ 2: "ПОЛНОЕ ПОГЛОЩЕНИЕ" (Много A, один B) ===
+    // B - A, где B = {[10, 20], [30, 40]}, A = [0, 100]. Q=2.
+    // A "вырезает" [ -2, 102 ], что полностью поглощает B.
+    // Результат: {} (пусто)
+    zbior_ary z_R2 = roznica(z_B, z_A);
+    printf("Test 2 (B - A): ");
+    print_zbior(z_R2); // Ожидаемый вывод: (пусто)
+
+
+    // === ТЕСТ 3: "A - A" (Самовычитание) ===
+    // A - A
+    // Результат: {} (пусто)
+    zbior_ary z_R3 = roznica(z_A, z_A);
+    printf("Test 3 (A - A): ");
+    print_zbior(z_R3); // Ожидаемый вывод: (пусто)
+
+
+    // === ТЕСТ 4: "NON-COMMON" (Пересекаются, но isItemsCommon = false) ===
+    // A = {[0, 100]}, q=2, Q=2
+    // z_B_noncommon = {[11, 21]}, q=2
+    // isItemsCommon([0, 100], [11, 21], 2) -> (abs(0-11)%2 == 1) -> false
+    // `roznica` должна "проигнорировать" [11, 21], A не должен измениться.
+    zbior_ary z_B_noncommon = ciag_arytmetyczny(11, 2, 21);
+    zbior_ary z_R4 = roznica(z_A, z_B_noncommon);
+    printf("Test 4 (Non-Common): ");
+    print_zbior(z_R4); // Ожидаемый вывод: 0 2 4 ... 100 (z_A)
+
+
+    // === ТЕСТ 5: "СМЕШАННЫЙ" (Common и Non-Common) ===
+    // A = {[0, 100]}, q=2, Q=2
+    // B = {[10, 20](common), [31, 41](non-common), [50, 60](common)}
+    // Собираем z_B_mix...
+    zbior_ary z_B_nc_part = ciag_arytmetyczny(31, 2, 41); // [31, 41] (non-common)
+    zbior_ary z_B_c_part = ciag_arytmetyczny(50, 2, 60);  // [50, 60] (common)
+    zbior_ary z_B_mix1 = suma(z_B_part1, z_B_nc_part);    // {[10, 20], [31, 41]}
+    zbior_ary z_B_mix = suma(z_B_mix1, z_B_c_part);       // {[10, 20], [31, 41], [50, 60]}
+    
+    // A - z_B_mix
+    // Должен вырезать [8, 22] и [48, 62].
+    // Должен проигнорировать [31, 41].
+    // Результат: {[0, 6], [24, 46], [64, 100]}
+    zbior_ary z_R5 = roznica(z_A, z_B_mix);
+    printf("Test 5 (Mixed): ");
+    print_zbior(z_R5); // Ожидаемый вывод: 0 2 4 6 24 26 ... 46 64 66 ... 100
+
+
+    // --- Очистка ---
+    free_zbior(z_A);
+    free_zbior(z_B_part1);
+    free_zbior(z_B_part2);
+    free_zbior(z_B);
+    free_zbior(z_R1);
+    free_zbior(z_R2);
+    free_zbior(z_R3);
+    free_zbior(z_B_noncommon);
+    free_zbior(z_R4);
+    free_zbior(z_B_nc_part);
+    free_zbior(z_B_c_part);
+    free_zbior(z_B_mix1);
+    free_zbior(z_B_mix);
+    free_zbior(z_R5);
+}
+
+void f7(){
+    zbior_ary z0, z1, z2, z3, z4, z5, z6, z7;
+    z0 = ciag_arytmetyczny(-15, 5, 5);
+    z1 = ciag_arytmetyczny(-4, 5, 1);
+    z2 = ciag_arytmetyczny(-14, 5, -4);
+    print_zbior(roznica(suma(z0, z1), z2));
+}
+
 int main() {
 
-    f6();
+    //roznica_test();
+    f7();
     return 0;
 }
