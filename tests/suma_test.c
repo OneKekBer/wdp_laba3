@@ -85,8 +85,8 @@ void f1(){
     free_zbior(z6);
     free_zbior(z7);
     free_zbior(z8);
-
 }
+
 void f2(){
     // Объявляем переменные для 10 результатов
     zbior_ary z0, z1, z2, z3, z4, z5, z6, z7, z8, z9;
@@ -472,9 +472,68 @@ void f7(){
     print_zbior(roznica(suma(z0, z1), z2));
 }
 
-int main() {
+void f8(){ //good roznica test 
+    zbior_ary z0, z1, z2, z3, z4, z5, z6, z7;
+    z0 = ciag_arytmetyczny(-20, 5, 5);
+    z2 = ciag_arytmetyczny(20, 5, 100);
+    z1 = ciag_arytmetyczny(-10, 5, 50);
+    z3 = suma(z0, z2);
+    print_zbior(z3);
+    print_zbior(roznica(z1, z3));    
+}
 
+void f9(){
+    zbior_ary z0, z1, z2, z3, z4, z5, z6, z7;
+    z0 = ciag_arytmetyczny(-15, 5, 5);
+    z2 = singleton(-11);
+    //z1 = (-10, 5, 50);
+    z3 = suma(z0, z2);
+    print_zbior(z3);
+    print_zbior(roznica(z2, z3));    
+}
+
+void f10(){
+    zbior_ary z0, z1, z2, z3, z4, z5, z6, z7;
+    z0 = ciag_arytmetyczny(-15, 5, 5);
+    z1 = ciag_arytmetyczny(-4, 5, 1);
+    z2 = ciag_arytmetyczny(-14, 5, -4);
+    z3 = suma(z0, z1);
+    print_zbior(z3);
+    print_zbior(roznica(z3, z2));    
+}
+void f11(){
+    zbior_ary z0, z1, z2, z3, z4, z5, z6, z7;
+    z0 = ciag_arytmetyczny(-50, 7, -22);
+    z1 = ciag_arytmetyczny(-36, 7, -22);
+    //z2 = ciag_arytmetyczny(-14, 5, -4);
+    z3 = roznica(z0, z1);
+    print_zbior(z3);
+    //print_zbior(roznica(z3, z2));    
+}
+
+
+
+void test5_b_covers_start() {
+    printf("\n=== TEST 5: B pokrywa początek A ===\n");
+    zbior_ary z0 = ciag_arytmetyczny(10, 5, 50);  // {10, 15, 20, 25, 30, 35, 40, 45, 50}
+    zbior_ary z1 = ciag_arytmetyczny(10, 5, 25);  // {10, 15, 20, 25}
+    printf("A: "); print_zbior(z0);
+    printf("B: "); print_zbior(z1);
+    
+    zbior_ary z2 = roznica(z0, z1);
+    printf("A - B: "); print_zbior(z2);
+    printf("Oczekiwane: {30, 35, 40, 45, 50}\n");
+    
+    free_zbior(z0);
+    free_zbior(z1);
+    free_zbior(z2);
+}
+
+
+int main() {
+    f11();
     //roznica_test();
-    f7();
+    //test5_b_covers_start();
+
     return 0;
 }

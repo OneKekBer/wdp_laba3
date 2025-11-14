@@ -2,7 +2,7 @@ CFLAGS = -std=c17 -pedantic -Wall -Wextra -Wformat-security -Wduplicated-cond\
          -Wfloat-equal -Wshadow -Wconversion -Wjump-misses-init\
          -Wlogical-not-parentheses -Wnull-dereference -Wvla -Werror\
          -fstack-protector-strong -fsanitize=undefined -fno-sanitize-recover\
-         -g -fno-omit-frame-pointer -O1
+         -g -fno-omit-frame-pointer -O1 -finput-charset=UTF-8 -fexec-charset=UTF-8
 
 
 suma: ./tests/suma_test.c zbior_ary.c ./../tests/print.cpp
@@ -12,6 +12,10 @@ suma: ./tests/suma_test.c zbior_ary.c ./../tests/print.cpp
 ocen: zbior_ary.c ocen.c 
 	g++ ocen.c zbior_ary.c -o ocen.e
 	./ocen.e
+
+correct: zbior_ary.c ./tests/correct.cpp 
+	g++ ./tests/correct.cpp zbior_ary.c -o correct.e
+	./correct.e
 
 nalezy: ./tests/nalezy_test.c zbior_ary.c
 	gcc ./tests/nalezy_test.c zbior_ary.c -o nalezy_test.e
