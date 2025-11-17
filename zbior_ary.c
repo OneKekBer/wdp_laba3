@@ -2,23 +2,27 @@
 #include <stdio.h>
 #include "zbior_ary.h"
 #include <math.h>
-#include <assert.h>
-//#include "../tests/print.h"
 
 #define max(a, b) ((a) > (b) ? (a) : (b))
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
 long long Q = 0;
 
-zbior_ary ciag_arytmetyczny(int a, int q, int b)
-{
-    if (Q == 0)
-        Q = q;
+long getRest(long long a){
+    long long r = a % Q;
+    if (r < 0) r += Q;
+    return r;
+}
 
-    assert(abs(a % Q) == abs(b % Q));
+bool isElementInItem(item it, long long x){
+    return (x >= it.a && x <= it.b) && (x - it.a) % Q == 0;
+}
+
+zbior_ary ciag_arytmetyczny(int a, int q, int b){
+    if (Q == 0) Q = q;
 
     item *sets = (item *)malloc(sizeof(item));
-    item i = {a, b, abs(a % Q)};
+    item i = {a, b, getRest(a)};
     //printf("%ld, %ld, %ld\n",i.a, i.b, i.rest);
     zbior_ary z;
 
@@ -29,10 +33,9 @@ zbior_ary ciag_arytmetyczny(int a, int q, int b)
     return z;
 }
 
-zbior_ary singleton(int a)
-{
+zbior_ary singleton(int a){
     item *sets = (item *)malloc(1 * sizeof(item));
-    item it = {a, a, abs(a % Q)};
+    item it = {a, a, getRest(a)};
     zbior_ary z;
 
     sets[0] = it;
@@ -48,6 +51,7 @@ unsigned ary(zbior_ary A){
 
 // if they has common q, [1,3] == [5,7] is common, [2,4] != [1,3] not common
 bool isItemsCommon(item item1, item item2){
+    if(Q == 1) return true;
     return item1.rest == item2.rest;
 }
 
@@ -55,8 +59,7 @@ bool isItemValid(item item){
     return item.a <= item.b;
 }
 
-zbior_ary createZbior(long long n, long long q, item *sets)
-{
+zbior_ary createZbior(long long n, long long q, item *sets){
     zbior_ary newZbior;
     newZbior.q = q;
     newZbior.n = n;
@@ -64,13 +67,7 @@ zbior_ary createZbior(long long n, long long q, item *sets)
     return newZbior;
 }
 
-bool isEmptyZbior(zbior_ary A)
-{
-    return A.sets == NULL;
-}
-
-bool isItemsIntersectsWithQ(item item1, item item2)
-{
+bool isItemsIntersectsWithQ(item item1, item item2){
     long long expandedA = item2.a - Q;
     long long expandedB = item2.b + Q;
 
@@ -80,8 +77,7 @@ bool isItemsIntersectsWithQ(item item1, item item2)
     return max_start <= min_end;
 }
 
-item getItemsIntersectionWithQ(item item1, item item2)
-{
+item getItemsIntersectionWithQ(item item1, item item2){
     long long expandedA = item2.a - Q;
     long long expandedB = item2.b + Q;
 
@@ -92,8 +88,7 @@ item getItemsIntersectionWithQ(item item1, item item2)
     return newItem;
 }
 
-bool isItemsIntersects(item item1, item item2)
-{
+bool isItemsIntersects(item item1, item item2){
     return (max(item1.a, item2.a) <= min(item1.b, item2.b));
 }
 
@@ -104,7 +99,6 @@ bool isItemsEqual(item item1, item item2){
 }
 
 bool isItemLower(item item1, item item2){
-
     if(item1.rest < item2.rest) return true;
     if(item1.rest > item2.rest) return false;
     
@@ -116,35 +110,31 @@ bool isItemLower(item item1, item item2){
     return false;
 }
 
-item getItemsIntersection(item item1, item item2)
-{
+item getItemsIntersection(item item1, item item2){
     item newItem;
     newItem.a = max(item1.a, item2.a);
     newItem.b = min(item1.b, item2.b);
-    assert(item1.rest == item2.rest);
     newItem.rest = item1.rest;
     return newItem;
 }
 
-item getItemsSum(item item1, item item2)
-{
+item getItemsSum(item item1, item item2){
     item newItem;
     newItem.a = min(item1.a, item2.a);
     newItem.b = max(item1.b, item2.b);
-    assert(item1.rest == item2.rest);
     newItem.rest = item1.rest;
     return newItem;
 }
 
-unsigned moc(zbior_ary A){ // maybe current item
+unsigned moc(zbior_ary A){
     unsigned long long cnt = 0;
     for (long long i = 0; i < A.n; ++i){
-        item item = A.sets[i];
-        if(isItemValid(item)){
-            cnt += (item.b - item.a) / Q + 1;
+        item it = A.sets[i];
+        if(isItemValid(it)){
+            cnt += (it.b - it.a) / Q + 1;
         }
     }
-
+    
     return (unsigned)cnt;
 }
 
@@ -167,9 +157,7 @@ zbior_ary suma(zbior_ary A, zbior_ary B){
                 newSets[insertIdx - 1] = getItemsSum(prevItem, itemA);
                 idxA++;
                 merged = true;
-            }
-
-            if (isItemsCommon(prevItem, itemB) && isItemsIntersectsWithQ(prevItem, itemB)){
+            }else if (isItemsCommon(prevItem, itemB) && isItemsIntersectsWithQ(prevItem, itemB)){
                 newSets[insertIdx - 1] = getItemsSum(prevItem, itemB);
                 idxB++;
                 merged = true;
@@ -251,38 +239,35 @@ zbior_ary roznica(zbior_ary A, zbior_ary B){
 
     while (idxA < A.n && idxB < B.n){
         item itemB = B.sets[idxB];
-        if (isItemsIntersects(currentA, itemB)){
-            if (isItemsCommon(currentA, itemB)){
-                bool merged = false;
-                
-                item intersection = getItemsIntersection(currentA, itemB);
-                if(!isItemValid(intersection)){ // if intersection dosnt exist
-                    if(isItemLower(currentA, itemB)){ // default sdvig looks terrible
-                        newSets[insertIdx] = currentA;
-                        insertIdx++;
-                        idxA++;
-                        if(idxA < A.n) currentA = A.sets[idxA];
-                    }else{
-                        idxB++;
-                    }
-            
-                    continue;
-                }
-                //if intersection exists
-                item leftDiff = {currentA.a, intersection.a - Q, currentA.rest}; //trying to get right part of currentA 
-                if(isItemValid(leftDiff)){                     
-                    newSets[insertIdx] = leftDiff;
+        
+        if(isItemsCommon(currentA, itemB)){
+            item intersection = getItemsIntersection(currentA, itemB);
+            if(!isItemValid(intersection)){ // if intersection dosnt exist
+                if(isItemLower(currentA, itemB)){ // default sdvig looks terrible
+                    newSets[insertIdx] = currentA;
                     insertIdx++;
-                }
-                
-                currentA.a = intersection.b + Q;
-                if(!isItemValid(currentA)){ // check isRight part of currentA exists, if not get another currentA
-                    //printf("fa");
                     idxA++;
-                    if(idxA < A.n)
-                        currentA = A.sets[idxA];
-                    continue;
+                    if(idxA < A.n) currentA = A.sets[idxA];
+                }else{
+                    idxB++;
                 }
+                continue;
+            }
+
+            //if intersection exists
+            item leftDiff = {currentA.a, intersection.a - Q, currentA.rest}; //trying to get right part of currentA 
+            if(isItemValid(leftDiff)){                     
+                newSets[insertIdx] = leftDiff;
+                insertIdx++;
+            }
+            
+            currentA.a = intersection.b + Q;
+            if(!isItemValid(currentA)){ // check isRight part of currentA exists, if not get another currentA
+                //printf("fa");
+                idxA++;
+                if(idxA < A.n)
+                    currentA = A.sets[idxA];
+                continue;
             }
         }
 
@@ -320,8 +305,10 @@ zbior_ary roznica(zbior_ary A, zbior_ary B){
 }
 
 zbior_ary iloczyn(zbior_ary A, zbior_ary B){
-    if(A.n == 0 || B.n == 0) return createZbior(0, 0, NULL);
-    long long n = max(A.n, B.n);
+    if(A.n == 0 || B.n == 0)
+        return createZbior(0, Q, NULL);
+        
+    long long n = A.n + B.n;
     item *newSets = (item *)malloc((unsigned)n * sizeof(item));
     long long insertIdx = 0, idxA = 0, idxB = 0;
 
@@ -329,19 +316,30 @@ zbior_ary iloczyn(zbior_ary A, zbior_ary B){
         item itemA = A.sets[idxA];
         item itemB = B.sets[idxB];
         
-        if(isItemsIntersects(itemA, itemB) && isItemsCommon(itemA, itemB)){
+        if(isItemsCommon(itemA, itemB)){
+            // Mają ten sam rest - znajdź przecięcie
             item intersection = getItemsIntersection(itemA, itemB);
             if(isItemValid(intersection)){
                 newSets[insertIdx] = intersection;
                 insertIdx++;
             }
+            
+            if(itemA.b < itemB.b)
+                idxA++;
+            else
+                idxB++;
+            
+        } else {
+            if(itemA.rest < itemB.rest){
+                idxA++;
+            } else {
+                idxB++;
+            }
         }
-
-        if(isItemLower(itemA, itemB))
-            idxA++;
-        else
-            idxB++;
     }
+
+    if (insertIdx == 0)
+        return createZbior(0, Q, NULL);
 
     if (insertIdx < n){
         item *reSets = (item *)realloc(newSets, (unsigned)insertIdx * sizeof(item));
@@ -349,37 +347,29 @@ zbior_ary iloczyn(zbior_ary A, zbior_ary B){
             newSets = reSets;
     }
 
-    return createZbior(insertIdx, max(A.q, max(B.q, Q)), newSets);
+    return createZbior(insertIdx, Q, newSets);
 }
 
 bool nalezy(zbior_ary A, int b){
+    if (A.n == 0)
+        return false;
+
+    item itemB = {b, b, getRest(b)};
     long long l = 0, r = A.n - 1;
 
-    while (l <= r)
-    {
+    while (l <= r){
         long long mid = l + (r - l) / 2;
         item midItem = A.sets[mid];
 
-        if (midItem.b == 0 && midItem.a >= 0){
-            if (midItem.a == b)
-                return true;
-            if (b < midItem.a)
-                r = mid - 1;
-            else
-                l = mid + 1;
-            continue;
+        if (isElementInItem(midItem, b)){
+            return true;
         }
 
-        // check if element b in range of [a,b]
-        if (b >= midItem.a && b <= midItem.b){
-            if (isItemsCommon(midItem, (item){b, b, abs(b % Q)}))
-                return true;
-        }
-
-        if (b < midItem.a)
+        if (isItemLower(itemB, midItem)){
             r = mid - 1;
-        else
+        } else {
             l = mid + 1;
+        }
     }
 
     return false;

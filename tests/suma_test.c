@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+
 #define max(a, b) ((a) > (b) ? (a) : (b))
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
@@ -503,35 +504,114 @@ void f10(){
 }
 void f11(){
     zbior_ary z0, z1, z2, z3, z4, z5, z6, z7;
-    z0 = ciag_arytmetyczny(-50, 7, -22);
-    z1 = ciag_arytmetyczny(-36, 7, -22);
+    z0 = ciag_arytmetyczny(-1, 3, 5);
+    int odp = nalezy(z0, 4);
+    printf("%d", odp);
     //z2 = ciag_arytmetyczny(-14, 5, -4);
-    z3 = roznica(z0, z1);
-    print_zbior(z3);
+    //z3 = iloczyn(z0, z1);
+    //print_zbior(z3);
+
     //print_zbior(roznica(z3, z2));    
 }
 
+void f12(){ // iloczyn test
+    zbior_ary z0, z1, z2, z3, z4, z5, z6, z7;
+    z0 = ciag_arytmetyczny(2, 4, 6);
+    z1 = ciag_arytmetyczny(-2, 4, 2);
 
+    z2 = iloczyn(z0, z1);
+    print_zbior(z2);
+    //z2 = ciag_arytmetyczny(-14, 5, -4);
+    //z3 = iloczyn(z0, z1);
+    //print_zbior(z3);
 
-void test5_b_covers_start() {
-    printf("\n=== TEST 5: B pokrywa początek A ===\n");
-    zbior_ary z0 = ciag_arytmetyczny(10, 5, 50);  // {10, 15, 20, 25, 30, 35, 40, 45, 50}
-    zbior_ary z1 = ciag_arytmetyczny(10, 5, 25);  // {10, 15, 20, 25}
-    printf("A: "); print_zbior(z0);
-    printf("B: "); print_zbior(z1);
+    //print_zbior(roznica(z3, z2));    
+}
+
+void f13(){ // iloczyn test
+    zbior_ary z0, z1, z2, z3, z4, z5, z6, z7;
+    z0 = ciag_arytmetyczny(-5, 3, 4);
+    z1 = singleton(4);
+
+    z2 = roznica(z0, z1);
+    print_zbior(z2);
+    //z2 = ciag_arytmetyczny(-14, 5, -4);
+    //z3 = iloczyn(z0, z1);
+    //print_zbior(z3);
+
+    //print_zbior(roznica(z3, z2));    
+}
+
+void f14(){ // iloczyn test
+    zbior_ary z0, z1, z2, z3, z4, z5, z6, z7;
+    z0 = ciag_arytmetyczny(-17, 2, -1);
+    z1 = ciag_arytmetyczny(-5, 2, 7);
+    z3 = suma(z0, z1);
+    z4 = singleton(-1);
+
+    z5 = iloczyn(z3, z4);
+    print_zbior(z5);
+    //z2 = ciag_arytmetyczny(-14, 5, -4);
+    //z3 = iloczyn(z0, z1);
+    //print_zbior(z3);
+
+    //print_zbior(roznica(z3, z2));    
+}
+
+void f15() {
+    printf("\n--- Test (Симуляция входной последовательности) ---\n");
     
-    zbior_ary z2 = roznica(z0, z1);
-    printf("A - B: "); print_zbior(z2);
-    printf("Oczekiwane: {30, 35, 40, 45, 50}\n");
+    // Массив для хранения всех созданных наборов (v[0] до v[6])
+    zbior_ary v[7]; 
     
-    free_zbior(z0);
-    free_zbior(z1);
-    free_zbior(z2);
+    // 0. (type 0) v[0] = ciag_arytmetyczny(11, 1, 18)
+    v[0] = ciag_arytmetyczny(11, 1, 18);
+    printf("[0] (0 11 1 18): "); print_zbior(v[0]);
+    
+    // 1. (type 1) v[1] = singleton(-3)
+    v[1] = singleton(-3);
+    printf("[1] (1 -3): "); print_zbior(v[1]);
+    
+    // 2. (type 2) v[2] = suma(v[1], v[0])
+    v[2] = suma(v[1], v[0]);
+    printf("[2] (2 1 0): "); print_zbior(v[2]);
+    
+    // 3. (type 1) v[3] = singleton(-11)
+    v[3] = singleton(-11);
+    printf("[3] (1 -11): "); print_zbior(v[3]);
+    
+    // 4. (type 5) nalezy(v[3], -1) -> Output
+    bool nalezy_result = nalezy(v[3], -1);
+    printf("Output (5 3 -1): %s\n", nalezy_result ? "1 (true)" : "0 (false)");
+    
+    // 5. (type 0) v[4] = ciag_arytmetyczny(-5, 1, 16)
+    v[4] = ciag_arytmetyczny(-5, 1, 16);
+    printf("[4] (0 -5 1 16): "); print_zbior(v[4]);
+
+    // 6. (type 7) ary(v[2]) -> Output
+    unsigned ary_result = ary(v[2]);
+    printf("Output (7 2): %u\n", ary_result);
+    
+    // 7. (type 3) v[5] = iloczyn(v[4], v[2])
+    print_zbior(v[4]);
+    print_zbior(v[2]);
+    v[5] = iloczyn(v[4], v[2]);
+    printf("[5] (3 4 2): "); print_zbior(v[5]);
+
+    // 8. (type 4) v[6] = roznica(v[0], v[2])
+    v[6] = roznica(v[0], v[2]);
+    printf("[6] (4 0 2): "); print_zbior(v[6]);
+    
+    // Cleanup: Освобождаем память для всех созданных наборов
+    for (int i = 0; i < 7; ++i) {
+        free_zbior(v[i]);
+    }
 }
 
 
+
 int main() {
-    f11();
+    f15();
     //roznica_test();
     //test5_b_covers_start();
 
