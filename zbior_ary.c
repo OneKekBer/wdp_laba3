@@ -8,6 +8,11 @@
 
 long long Q = 0;
 
+//i want this function)
+// this func computes rest
+// for negative numbers, it adds q to get a positive rest
+// for exmpl getRest(-3) with q = 5 return 2 (instead of -3)
+// its better to work with positive rests
 long getRest(long long a){
     long long r = a % Q;
     if (r < 0) r += Q;
@@ -19,29 +24,29 @@ bool isElementInItem(item it, long long x){
 }
 
 zbior_ary ciag_arytmetyczny(int a, int q, int b){
-    if (Q == 0) Q = q;
-
+    if (Q == 0) Q = q; // define global q
     item *sets = (item *)malloc(sizeof(item));
-    item i = {a, b, getRest(a)};
-    //printf("%ld, %ld, %ld\n",i.a, i.b, i.rest);
+    item it = {a, b, getRest(a)};
+    sets[0] = it;
     zbior_ary z;
 
-    sets[0] = i;
     z.n = 1;
-    z.q = q;
+    z.q = Q;
     z.sets = sets;
+    
     return z;
 }
 
 zbior_ary singleton(int a){
     item *sets = (item *)malloc(1 * sizeof(item));
     item it = {a, a, getRest(a)};
+    sets[0] = it;
     zbior_ary z;
 
-    sets[0] = it;
-    z.sets = sets;
     z.n = 1;
     z.q = Q;
+    z.sets = sets;
+
     return z;
 }
 
@@ -49,14 +54,14 @@ unsigned ary(zbior_ary A){
     return (unsigned)A.n;
 }
 
-// if they has common q, [1,3] == [5,7] is common, [2,4] != [1,3] not common
+// if they has common rest, for q = 2, [1,3] == [5,7] is common, [2,4] != [1,3] not common
 bool isItemsCommon(item item1, item item2){
     if(Q == 1) return true;
     return item1.rest == item2.rest;
 }
 
-bool isItemValid(item item){
-    return item.a <= item.b;
+bool isItemValid(item it){
+    return it.a <= it.b;
 }
 
 zbior_ary createZbior(long long n, long long q, item *sets){
@@ -67,37 +72,25 @@ zbior_ary createZbior(long long n, long long q, item *sets){
     return newZbior;
 }
 
+// extend range of this items with q, for searching progression of items
 bool isItemsIntersectsWithQ(item item1, item item2){
-    long long expandedA = item2.a - Q;
-    long long expandedB = item2.b + Q;
-
-    long long max_start = max(item1.a, expandedA);
-    long long min_end = min(item1.b, expandedB);
+    long long max_start = max(item1.a, item2.a - Q);
+    long long min_end = min(item1.b, item2.b + Q);
 
     return max_start <= min_end;
 }
 
+//extended range but return intersection
 item getItemsIntersectionWithQ(item item1, item item2){
-    long long expandedA = item2.a - Q;
-    long long expandedB = item2.b + Q;
-
     item newItem;
-    newItem.a = max(item1.a, expandedA);
-    newItem.b = min(item1.b, expandedB);
+    newItem.a = max(item1.a, item2.a - Q);
+    newItem.b = min(item1.b, item2.b + Q);
     newItem.rest = item1.rest;
     return newItem;
 }
 
-bool isItemsIntersects(item item1, item item2){
-    return (max(item1.a, item2.a) <= min(item1.b, item2.b));
-}
-
-bool isItemsEqual(item item1, item item2){
-    return item1.a == item2.a &&
-        item1.b == item2.b &&
-        item1.rest == item2.rest;
-}
-
+//Function that compares two items
+//firstly on rests, then a then b
 bool isItemLower(item item1, item item2){
     if(item1.rest < item2.rest) return true;
     if(item1.rest > item2.rest) return false;
@@ -131,14 +124,13 @@ unsigned moc(zbior_ary A){
     for (long long i = 0; i < A.n; ++i){
         item it = A.sets[i];
         if(isItemValid(it)){
-            cnt += (it.b - it.a) / Q + 1;
+            cnt += (long long unsigned)((it.b - it.a) / Q + 1);
         }
     }
     
     return (unsigned)cnt;
 }
 
-// assume that all sets are sorted
 zbior_ary suma(zbior_ary A, zbior_ary B){
     long long n = A.n + B.n;
     item *newSets = (item *)malloc((unsigned)n * sizeof(item));
@@ -148,77 +140,77 @@ zbior_ary suma(zbior_ary A, zbior_ary B){
         item itemA = A.sets[idxA];
         item itemB = B.sets[idxB];
 
-        // if i can sum current items with prev i do this
+        // check if i can sum current items with prev items
+        bool isJoined = false;
         if (insertIdx > 0){
             item prevItem = newSets[insertIdx - 1];
-            bool merged = false;
 
             if (isItemsCommon(prevItem, itemA) && isItemsIntersectsWithQ(prevItem, itemA)){
                 newSets[insertIdx - 1] = getItemsSum(prevItem, itemA);
                 idxA++;
-                merged = true;
+                isJoined = true;
             }else if (isItemsCommon(prevItem, itemB) && isItemsIntersectsWithQ(prevItem, itemB)){
                 newSets[insertIdx - 1] = getItemsSum(prevItem, itemB);
                 idxB++;
-                merged = true;
+                isJoined = true;
             }
-
-            if (merged)
-                continue;
         }
 
-        if (isItemsCommon(itemA, itemB) && isItemsIntersectsWithQ(itemA, itemB)){
-            newSets[insertIdx] = getItemsSum(itemA, itemB);
-            insertIdx++;
-            idxA++;
-            idxB++;
-            continue;
-        }
-
-        if (isItemLower(itemA, itemB)){
-            newSets[insertIdx] = itemA;
-            idxA++;
-            insertIdx++;
-        }else{
-            newSets[insertIdx] = itemB;
-            idxB++;
-            insertIdx++;
+        //if we dont sum prev i current items then try to sum a and b
+        if(!isJoined){
+            if (isItemsCommon(itemA, itemB) && isItemsIntersectsWithQ(itemA, itemB)){
+                newSets[insertIdx] = getItemsSum(itemA, itemB);
+                insertIdx++;
+                idxA++;
+                idxB++;
+            }else if (isItemLower(itemA, itemB)){ // if we cant sum it we move pointer
+                newSets[insertIdx] = itemA;       // if a lower than b, move idxA else move idxB 
+                idxA++;
+                insertIdx++;
+            }else{
+                newSets[insertIdx] = itemB;
+                idxB++;
+                insertIdx++;
+            }
         }
     }
 
-    // now fill newSets with items which wasnt added
-    if (idxA < A.n){ //rewrite on while
-        for (long long i = idxA; i < A.n; ++i){
-            item itemA = A.sets[i];
-            if (insertIdx > 0){
-                item prevItem = newSets[insertIdx - 1];
-                if (isItemsCommon(itemA, prevItem) && isItemsIntersectsWithQ(itemA, prevItem)){
-                    newSets[insertIdx - 1] = getItemsSum(itemA, prevItem);
-                    continue;
-                }
+    // now fill newSets with items which wasn`t added
+    for (long long i = idxA; i < A.n; ++i){
+        bool isJoined = false;
+        item itemA = A.sets[i];
+        if (insertIdx > 0){
+            item prevItem = newSets[insertIdx - 1];
+            if (isItemsCommon(itemA, prevItem) && isItemsIntersectsWithQ(itemA, prevItem)){
+                newSets[insertIdx - 1] = getItemsSum(itemA, prevItem);
+                isJoined = true;
             }
+        }
 
+        if(!isJoined){
             newSets[insertIdx] = itemA;
             insertIdx++;
         }
     }
-
-    if (idxB < B.n){
-        for (long long i = idxB; i < B.n; ++i){
-            item itemB = B.sets[i];
-            if (insertIdx > 0){
-                item prevItem = newSets[insertIdx - 1];
-                if (isItemsCommon(itemB, prevItem) && isItemsIntersectsWithQ(itemB, prevItem)){
-                    newSets[insertIdx - 1] = getItemsSum(itemB, prevItem);
-                    continue;
-                }
+    
+    for(long long i = idxB; i < B.n; ++i){
+        bool isJoined = false;
+        item itemB = B.sets[i];
+        if (insertIdx > 0){
+            item prevItem = newSets[insertIdx - 1];
+            if (isItemsCommon(itemB, prevItem) && isItemsIntersectsWithQ(itemB, prevItem)){
+                newSets[insertIdx - 1] = getItemsSum(itemB, prevItem);
+                isJoined = true;
             }
+        }
 
+        if(!isJoined){
             newSets[insertIdx] = itemB;
             insertIdx++;
         }
     }
-
+    
+    //check can i decrease size of my newSets array
     if (insertIdx < n){
         item *reSets = (item *)realloc(newSets, (unsigned)insertIdx * sizeof(item));
         if (reSets != NULL)
@@ -238,12 +230,16 @@ zbior_ary roznica(zbior_ary A, zbior_ary B){
     item currentA = A.sets[idxA];
 
     while (idxA < A.n && idxB < B.n){
-        item itemB = B.sets[idxB];
-        
+        //i need to control when i have invalid items
+        //if i have invalid items then i need to move my currentA or itemB and
+        //i cant be sure is idxA < A.n or idxB < B.n
+        bool isValid = true;
+        item itemB = B.sets[idxB];        
         if(isItemsCommon(currentA, itemB)){
             item intersection = getItemsIntersection(currentA, itemB);
-            if(!isItemValid(intersection)){ // if intersection dosnt exist
-                if(isItemLower(currentA, itemB)){ // default sdvig looks terrible
+
+            if(!isItemValid(intersection)){ // if intersection doesn`t exist then i change idxs
+                if(isItemLower(currentA, itemB)){ // default idxs moving
                     newSets[insertIdx] = currentA;
                     insertIdx++;
                     idxA++;
@@ -251,33 +247,35 @@ zbior_ary roznica(zbior_ary A, zbior_ary B){
                 }else{
                     idxB++;
                 }
-                continue;
-            }
-
-            //if intersection exists
-            item leftDiff = {currentA.a, intersection.a - Q, currentA.rest}; //trying to get right part of currentA 
-            if(isItemValid(leftDiff)){                     
-                newSets[insertIdx] = leftDiff;
-                insertIdx++;
-            }
-            
-            currentA.a = intersection.b + Q;
-            if(!isItemValid(currentA)){ // check isRight part of currentA exists, if not get another currentA
-                //printf("fa");
-                idxA++;
-                if(idxA < A.n)
-                    currentA = A.sets[idxA];
-                continue;
+                isValid = false;
+            }else { // if intersection exists
+                item leftDiff = {currentA.a, intersection.a - Q, currentA.rest}; 
+                if(isItemValid(leftDiff)){                     
+                    newSets[insertIdx] = leftDiff;
+                    insertIdx++;
+                }
+                
+                //trying to get right part of currentA 
+                currentA.a = intersection.b + Q;
+                if(!isItemValid(currentA)){ // check isRight part of currentA exists, if not get another currentA
+                    idxA++;
+                    if(idxA < A.n) currentA = A.sets[idxA];
+                    isValid = false;
+                }
             }
         }
 
-        if(isItemLower(currentA, itemB)){
-            newSets[insertIdx] = currentA;
-            insertIdx++;
-            idxA++;
-            if(idxA < A.n) currentA = A.sets[idxA];
-        }else{
-            idxB++;
+        // If there were no invalid items in this iteration,
+        // then I can freely move the items.
+        if(isValid){
+            if(isItemLower(currentA, itemB)){
+                newSets[insertIdx] = currentA;
+                insertIdx++;
+                idxA++;
+                if(idxA < A.n) currentA = A.sets[idxA];
+            }else{
+                idxB++;
+            }
         }
     }
 
@@ -317,20 +315,26 @@ zbior_ary iloczyn(zbior_ary A, zbior_ary B){
         item itemB = B.sets[idxB];
         
         if(isItemsCommon(itemA, itemB)){
-            // Mają ten sam rest - znajdź przecięcie
+            //trying to get intersection
             item intersection = getItemsIntersection(itemA, itemB);
             if(isItemValid(intersection)){
+                //if intersection valid add
                 newSets[insertIdx] = intersection;
                 insertIdx++;
             }
-            
-            if(itemA.b < itemB.b)
+
+            // we already knows that rests are the same 
+            // and we need to check which item ends faster and move this item
+            // for example [-15, 5] and [-20, 100], we have a 
+            //chance that itemB will intersect next item  
+            if(itemA.b < itemB.b){
                 idxA++;
-            else
+            } else{
                 idxB++;
-            
+            }
         } else {
-            if(itemA.rest < itemB.rest){
+            //simple comparing of two items and moving idxs
+            if(isItemLower(itemA, itemB)){
                 idxA++;
             } else {
                 idxB++;
@@ -354,7 +358,7 @@ bool nalezy(zbior_ary A, int b){
     if (A.n == 0)
         return false;
 
-    item itemB = {b, b, getRest(b)};
+    item itemB = {b, b, getRest(b)}; //create singleton b
     long long l = 0, r = A.n - 1;
 
     while (l <= r){
@@ -365,7 +369,8 @@ bool nalezy(zbior_ary A, int b){
             return true;
         }
 
-        if (isItemLower(itemB, midItem)){
+        if (isItemLower(itemB, midItem)){ //if i already have function that
+                                          // compare items i can use it but with singleton b
             r = mid - 1;
         } else {
             l = mid + 1;

@@ -4,23 +4,24 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+// a - first element
+// b - last element
+// rest - a mod Q
 typedef struct {
   long long a;
   long long b;
   long long rest;
 } item;
 
-//what fields do i need to have 
+// n - dynamicly stored Aryq(A) 
+// sets - array of items 
 typedef struct {
   long long n;
   item *sets;
   long long q;
 } zbior_ary;
 
-zbior_ary createZbior(long long n, long long q, item *sets);
-
 /* Najlepiej nie modyfikowac nic ponizej. */
-
 // Funkcja daje w wyniku zbior reprezentujacy ciag arytmetyczny o elemencie poczatkowym a, końcowym b i roznicy q>0, tj. {a,a+q,...,b}.
 // Mozesz zalozyc, ze we wszystkich zapytaniach w danym tescie wartosc q bedzie taka sama.
 // Mozesz zalozyc, ze ta funkcja zostanie wywolana jako pierwsza.
